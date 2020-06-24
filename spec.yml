@@ -1,6 +1,6 @@
 swagger: "2.0"
 info:
-  description: "Documentación Delillah Restó API"
+  description: "Documentation Delillah Restó API"
   version: "1.0.0"
   title: "Delillah Restó"
   termsOfService: "http://swagger.io/terms/"
