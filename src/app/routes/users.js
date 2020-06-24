@@ -1,4 +1,5 @@
 const dbConnection = require('../../config/dbConnection');
+const {validateJWT,validateAdmin} = require('../../validateJWT');
 const jwt = require('jsonwebtoken');
 const {key} = require('../../config/jwt');
 const connection  = dbConnection();
@@ -67,6 +68,16 @@ function generateToken(req,res,next){
 }
 
 module.exports = app =>{
+        app.get('/v1/users',validateJWT,validateAdmin,(req,res)=>{
+            connection.query('SELECT * FROM users',{type:connection.QueryTypes.SELECT})
+            .then((response)=>{
+                res.json(response);
+            })
+            .catch((err)=>{
+                console.log(err);
+            })
+        });
+
         app.post('/v1/users',validateDuplicateUser,(req,res)=>{
         const {username,password,firstname,lastname,email,cellphone,address} = req.body;
         if(username && password && firstname && lastname && email && cellphone && address){

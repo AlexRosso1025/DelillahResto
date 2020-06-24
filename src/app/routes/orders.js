@@ -1,7 +1,6 @@
 const dbConnection = require('../../config/dbConnection');
 const moment = require('moment');
 const connection  = dbConnection();
-
 const {validateJWT,validateAdmin} = require('../../validateJWT');
 const app = require('../../config/server');
 const { response } = require('express');
