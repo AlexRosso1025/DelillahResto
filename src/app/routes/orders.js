@@ -173,7 +173,7 @@ module.exports = app => {
     });
 
     app.get('/v1/orders',validateJWT,validateAdmin,(req,res)=>{
-        connection.query(`SELECT o.order_status,o.order_time,o.order_id,o.order_description,SUM(price), concat(u.firstname, ' ', u.lastname) as fullname,u.address FROM orders o join orders_detail od on o.order_id = od.order_id join products p on od.product_id = p.product_id join users u on o.user_id = u.user_id where o.order_id = od.order_id group by o.order_id`,
+        connection.query(`SELECT o.order_status,o.order_time,o.order_id,o.order_description,SUM(price) as total_payment, concat(u.firstname, ' ', u.lastname) as fullname,u.address FROM orders o join orders_detail od on o.order_id = od.order_id join products p on od.product_id = p.product_id join users u on o.user_id = u.user_id where o.order_id = od.order_id group by o.order_id`,
         {type:connection.QueryTypes.SELECT})
         .then((response)=>{
             res.json(response);
@@ -188,7 +188,7 @@ module.exports = app => {
         if(permit){
             res.redirect('/v1/orders');
         }else{
-            connection.query(`SELECT o.order_status,o.order_time,o.order_id,o.order_description,SUM(price), concat(u.firstname, ' ', u.lastname) as fullname,u.address FROM orders o join orders_detail od on o.order_id = od.order_id join products p on od.product_id = p.product_id join users u on o.user_id = u.user_id where u.email= ? group by o.order_id`,
+            connection.query(`SELECT o.order_status,o.order_time,o.order_id,o.order_description,SUM(price) as total_payment, concat(u.firstname, ' ', u.lastname) as fullname,u.address FROM orders o join orders_detail od on o.order_id = od.order_id join products p on od.product_id = p.product_id join users u on o.user_id = u.user_id where u.email= ? group by o.order_id`,
             {replacements:[email]})
             .then((response)=>{
                 res.json(response[0]);

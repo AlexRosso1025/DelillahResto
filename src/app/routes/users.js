@@ -9,7 +9,7 @@ function validateDuplicateUser(req,res,next){
     connection.query(`SELECT * FROM users where email = ?`,{replacements:[email]})
     .then((response)=>{
         if(response[0][0]){
-            res.status(400).json({message:`user already exists with email ${email}`});
+            res.status(409).json({message:`User already exists with email ${email}`});
         }else{
             next();
         }
@@ -26,7 +26,7 @@ function validateUserExist(req,res,next){
         if(response[0][0]){
             next();
         }else{
-            res.status(400).json({message:`there's not a user with email ${email} in our system`});
+            res.status(404).json({message:`There's a problem with your email or password`});
         }
     })
     .catch((err)=>{
@@ -42,7 +42,7 @@ function validatePassword(req,res,next){
         if(pass===password){
             next();
         }else{
-            res.status(400).json(`password not valid for user ${email}`);
+            res.status(404).json(`There's a problem with your email or password`);
         }
     })
     .catch((err)=>{
