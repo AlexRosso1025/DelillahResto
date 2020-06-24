@@ -95,6 +95,79 @@ function insertOrderDetail(req,res,next){
     }
 }
 
+function getOrderId(req,res,next){
+    const {orderId} = req.params;
+    connection.query(`SELECT * FROM orders where order_id = ?`,{replacements:[orderId]})
+    .then((response)=>{
+        if(response[0][0]){
+            req.order = response[0][0];
+            next();
+        }else{
+            res.status(404).json({message:'order not found'});
+        }
+    })
+    .catch((err)=>{
+        console.log(err);
+    });
+}
+
+function validateOrderStatus(req,res,next){
+    const {order_status} = req.body;
+    if(order_status){
+        const types = ['nuevo','confirmado','preparando','enviando','cancelado','entregado'];
+        const existOrderStatus = types.find((elem)=>{
+            if(elem==order_status){
+                return true;
+            }
+        });
+
+        if(!existOrderStatus){
+            res.status(400).json(`there's not a order status named ${order_status} please validate`);
+        }else{
+            next();
+        }
+    }else{
+        res.status(400).json({message:'Missing Arguments'});
+    }
+}
+
+function updateOrder(req,res,next){
+    const {orderId} = req.params;
+    const {order_status} = req.body;
+    connection.query('UPDATE orders SET order_status = ? WHERE order_id = ?',{replacements:[order_status,orderId]})
+    .then((response)=>{
+        connection.query(`SELECT o.order_status,o.order_time,o.order_id,o.order_description,SUM(price), concat(u.firstname, ' ', u.lastname) as fullname,u.address FROM orders o join orders_detail od on o.order_id = od.order_id join products p on od.product_id = p.product_id join users u on o.user_id = u.user_id where o.order_id = ? group by o.order_id`,
+        {replacements:[orderId]})
+        .then((response)=>{
+            req.newOrder = response[0];
+            next();
+        })
+        .catch((err)=>{
+            console.log(err);
+        });
+    })
+    .catch((err)=>{
+        console.log(err);
+    });
+}
+
+function deleteOrder(req,res,next){
+    const {order} = req;
+    connection.query('DELETE FROM orders_detail WHERE order_id = ? ',{replacements:[order.order_id]})
+    .then((response)=>{
+        connection.query('DELETE FROM orders WHERE order_id = ? ',{replacements:[order.order_id]})
+        .then((response)=>{
+            next();
+        })
+        .catch((err)=>{
+            console.log(err);
+        });
+    })
+    .catch((err)=>{
+        console.log(err);
+    });
+}
+
 module.exports = app => {
     app.post('/v1/orders',validateJWT,validatePaymentMethodOrder,arrayOrders,productsExist,insertOrder,insertOrderDetail,(req,res)=>{
         res.status(201).json('new order created');
@@ -109,5 +182,30 @@ module.exports = app => {
         .catch((err)=>{
             console.log(err);
         });
+    });
+
+    app.get('/v1/orders/myOrders',validateJWT,(req,res)=>{
+        const {email,permit} = req.payload;
+        if(permit){
+            res.redirect('/v1/orders');
+        }else{
+            connection.query(`SELECT o.order_status,o.order_time,o.order_id,o.order_description,SUM(price), concat(u.firstname, ' ', u.lastname) as fullname,u.address FROM orders o join orders_detail od on o.order_id = od.order_id join products p on od.product_id = p.product_id join users u on o.user_id = u.user_id where u.email= ? group by o.order_id`,
+            {replacements:[email]})
+            .then((response)=>{
+                res.json(response[0]);
+            })
+            .catch((err)=>{
+                console.log(err);
+            })
+        }
+    });
+
+    app.put('/v1/orders/:orderId',validateJWT,validateAdmin,validateOrderStatus,getOrderId,updateOrder,(req,res)=>{
+        const {newOrder} = req;
+        res.status(200).json(newOrder);
+    });
+
+    app.delete('/v1/orders/:orderId',validateJWT,validateAdmin,getOrderId,deleteOrder,(req,res)=>{
+        res.status(204).json();
     });
 };
