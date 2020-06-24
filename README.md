@@ -38,4 +38,6 @@ $node index
 - body-parser version 1.19.0
 - express version 4.17.1
 - jsonwebtoken version 8.5.1
-- mysql version 2.18.1
+- sequelize version 5.21.13
+- mysql2 version 2.1.0
+- moment version 2.27.0
