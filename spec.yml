@@ -1,6 +1,6 @@
 swagger: "2.0"
 info:
-  description: "Documentation Delillah Restó API"
+  description: "Documentación Delillah Restó API"
   version: "1.0.0"
   title: "Delillah Restó"
   termsOfService: "http://swagger.io/terms/"
@@ -76,6 +76,9 @@ paths:
           description: "Token expired. Login again"
         "403":
           description: "You don't have permissions"
+      security:
+        - auth:
+          - "write:products"
   
   /products/{productId}:
     put:
@@ -109,7 +112,7 @@ paths:
             $ref: "#/definitions/create_product"
       responses:
         "200":
-          description: "new Product created"
+          description: "Product updated"
           schema:
             $ref: "#/definitions/get_product"
         "400":
@@ -120,12 +123,16 @@ paths:
           description: "You don't have permissions"
         "404":
           description: "Product not found"
+      security:
+        - auth:
+          - "write:products"
     
     delete:
       tags:
         - "products"
       summary: "Deletes a product"
       description: "Response not content if operation is successful"
+      operationId: "deleteProducts"
       parameters:  
         - name: "productId"
           in: "path"
@@ -147,9 +154,279 @@ paths:
           description: "You don't have permissions"
         "404":
           description: "Product not found"
+      security:
+        - auth:
+          - "write:products"
+  
+  /orders:
+    get:
+      tags:
+        - "orders"
+      summary: "Admin get all orders"
+      description: "Return all orders in store to Admin"
+      operationId: "getOrdersAdmin"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "header"
+          name: "token"
+          description: "authentication token"
+          required: true
+          type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/get_orders"
+        "401":
+          description: "Token expired. Login again"
+        "403":
+          description: "You don't have permissions"
+      security:
+        - auth:
+          - "write:orders"
     
+    post:
+      tags:
+        - "orders"
+      summary: "Create a new Order"
+      description: "Return new order created if operation is successful"
+      operationId: "createOrder"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "header"
+          name: "token"
+          description: "authentication token admin"
+          required: true
+          type: "string"
+        - in: "body"
+          name: "body"
+          description: "Order that needs to be add"
+          required: true
+          schema:
+            $ref: "#/definitions/create_order"
+            
+      responses:
+        "201":
+          description: "new Order created"
+        "400":
+          description: "Missing Arguments"
+        "401":
+          description: "Token expired. Login again"
+        "403":
+          description: "You don't have permissions"
+      security:
+        - auth:
+          - "write:orders"
+  
+  /orders/myOrders:
+    get:
+      tags:
+        - "orders"
+      summary: "User get all orders"
+      description: "Return all orders in store to user"
+      operationId: "getOrdersUser"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "header"
+          name: "token"
+          description: "authentication token"
+          required: true
+          type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/get_orders"
+        "401":
+          description: "Token expired. Login again"
+          
+  /orders/{orderId}:
+    put:
+      tags:
+        - "orders"
+      summary: "Update a order"
+      description: "Response updated order if operation is successful"
+      operationId: "updateOrders"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "orderId"
+          in: "path"
+          description: "Id order to update"
+          required: true
+          type: "integer"
+          
+        - in: "header"
+          name: "token"
+          description: "authentication token admin"
+          required: true
+          type: "string"
+          
+        - in: "body"
+          name: "body"
+          description: "Order that needs to be update"
+          required: true
+          schema:
+            $ref: "#/definitions/update_order"
+      responses:
+        "200":
+          description: "new Product created"
+          schema:
+            $ref: "#/definitions/get_orders"
+        "400":
+          description: "Missing Arguments"
+        "401":
+          description: "Token expired. Login again"
+        "403":
+          description: "You don't have permissions"
+        "404":
+          description: "Order not found"
+      security:
+        - auth:
+          - "write:orders"
+    
+    delete:
+      tags:
+        - "orders"
+      summary: "Deletes a order"
+      description: "Response not content if operation is successful"
+      operationId: "deleteOrders"
+      parameters:  
+        - name: "orderId"
+          in: "path"
+          description: "Id order to update"
+          required: true
+          type: "integer"
+          
+        - in: "header"
+          name: "token"
+          description: "authentication token admin"
+          required: true
+          type: "string"
+      responses:
+        "204":
+          description: ""
+        "401":
+          description: "Token expired. Login again"
+        "403":
+          description: "You don't have permissions"
+        "404":
+          description: "Order not found"
+      security:
+        - auth:
+          - "write:orders"
+  
+  /users:
+    get:
+      tags:
+        - "users"
+      summary: "Admin get all users"
+      description: "Return all users in store to user"
+      operationId: "getUsers"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "header"
+          name: "token"
+          description: "authentication token"
+          required: true
+          type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/get_users"
+        "401":
+          description: "Token expired. Login again"
+        "403":
+          description: "You don't have permissions"
+      security:
+        - auth:
+          - "write:users"
+    
+    post:
+      tags:
+       - "users"
+      summary: "Create a new User"
+      description: "Return new user created if operation is successful"
+      operationId: "createUser"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "header"
+          name: "token"
+          description: "authentication token admin"
+          required: true
+          type: "string"
+        - in: "body"
+          name: "body"
+          description: "User that needs to be add"
+          required: true
+          schema:
+            $ref: "#/definitions/create_user"
+      responses:
+          "201":
+            description: "new User created"
+          "400":
+            description: "Missing Arguments"
+          "409":
+            description: "User already exists with email alexrosso@gmail.com"
+  
+  /users/auth:
+    post:
+      tags:
+        - "users"
+      summary: "Logs a User into the system"
+      description: "Return token if operation is successful"
+      operationId: "loginUser"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "User that needs to log in the system"
+          required: true
+          schema:
+            $ref: "#/definitions/login_user"
+      responses:
+          "200":
+            description: "Ok"
+            schema:
+              type: "string"
+              example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGRlbGlsbGFoLmNvbSIsInBlcm1pdCI6MSwiaWF0IjoxNTkyOTc3MDIyLCJleHAiOjE1OTI5ODQyMjJ9.pCo_oWo6PDNa7TcKslbgrc_9eBt3tvGDcC_h8NEkGa4"
+          "400":
+            description: "Missing Arguments"
+          "404":
+            description: "There's a problem with your email or password"
+      
 
-
+securityDefinitions:
+  auth:
+    type: "oauth2"
+    authorizationUrl: "localhost:3000/v1/users/auth"
+    flow: "implicit"
+    scopes:
+      write:products: "create, update and delete products"
+      write:orders: "get, update and delete orders"
+      write:users: "get all users"
+      
 definitions:
   get_product:
     type: "object"
@@ -159,7 +436,6 @@ definitions:
     properties:
       product_id:
         type: "integer"
-        format: "int64"
       product_name:
         type: "string"
         example: "burguer"
@@ -180,4 +456,168 @@ definitions:
         type: "number"
         example: "10000"
   
-      
+  get_orders:
+    type: "object"
+    required: 
+      - "order_status"
+      - "order_time"
+      - "order_id"
+      - "order_description"
+      - "total_payment"
+      - "fullname"
+      - "address"
+    properties:
+      order_status:
+        type: "string"
+        enum: 
+          - "nuevo"
+          - "confirmado"
+          - "preparando"
+          - "enviando"
+          - "cancelado"
+          - "entregado"
+      order_time:
+        type: "string"
+        example: "06:50:53"
+      order_id:
+        type: "number"
+      order_description:
+        type: "string"
+        example: "Description"
+      total_payment:
+        type: "integer"
+        example: 70000
+      fullname:
+        type: "string"
+        example: "Alex Rosso"
+      address:
+        type: "string"
+        example: "Calle Siempre Viva"
+  
+  create_order:
+    type: "object"
+    required: 
+      - "products"
+      - "payment_method"
+      - "order_description"
+    properties:
+      products:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            product_id:
+              type: "integer"
+              example: 1
+              
+      payment_method:
+        type: "string"
+        enum: 
+          - "efectivo"
+          - "pse"
+          - "tarjeta credito"
+          - "tarjeta debito"
+      order_description:
+        type: "string"
+        example: "Description"
+  
+  update_order:
+    type: "object"
+    required: 
+     - "order_status"
+    properties:
+      order_status:
+        type: "string"
+        enum: 
+          - "nuevo"
+          - "confirmado"
+          - "preparando"
+          - "enviando"
+          - "cancelado"
+          - "entregado"
+          
+  get_users:
+    type: "object"
+    required:
+      - "user_id"
+      - "username"
+      - "password"
+      - "firstname"
+      - "lastname"
+      - "email"
+      - "cellphone"
+      - "address"
+      - "is_admin"
+    properties:
+      user_id:
+        type: "integer"
+      username:
+        type: "string"
+        example: "userAcamica"
+      password:
+        type: "string"
+        example: "1234"
+      firstname:
+        type: "string" 
+        example: "Alex"
+      lastname:
+        type: "string"
+        example: "Rosso"
+      email:
+        type: "string"
+        example: "alexrosso@gmail.com"
+      cellphone:
+        type: "string"
+        example: "3008976543"
+      address:
+        type: "string"
+        example: "Calle Siempre Viva"
+      is_admin:
+        type: "boolean"
+        example: true
+  
+  create_user:
+    type: "object"
+    required:
+      - "username"
+      - "password"
+      - "firstname"
+      - "lastname"
+      - "email"
+      - "cellphone"
+      - "address"
+    properties:
+      username:
+        type: "string"
+        example: "userAcamica"
+      password:
+        type: "string"
+        example: "1234"
+      firstname:
+        type: "string" 
+        example: "Alex"
+      lastname:
+        type: "string"
+        example: "Rosso"
+      email:
+        type: "string"
+        example: "alexrosso@gmail.com"
+      cellphone:
+        type: "string"
+        example: "3008976543"
+      address:
+        type: "string"
+        example: "Calle Siempre Viva"
+  
+  login_user:
+    type: "object"
+    required:
+      - "email"
+      - "password"
+    properties:
+      email:
+        type: "string"
+        example: "alexrosso@gmail.com"
+      password:
+        type: "string"
+        example: "123456"
