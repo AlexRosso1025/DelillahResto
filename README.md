@@ -26,7 +26,7 @@ $ npm install
 - Correr un servidor MySQL (Xampp).
 - Crear la Base de datos desde PHPMyAdmin o usando MySQLWorkbench `https://dev.mysql.com/downloads/Workbench/`.
 - Abrir `src/sql` crear la Base de datos desde el archivo `database.sql`.
-- Abrir `src/config` el archivo (`dbConnection.js`) y configurar host, user, password y database.
+- Abrir `src/config` el archivo (`dbConfig.js`) y configurar host, user, password y database.
 
 ### Correr el API
 ```
